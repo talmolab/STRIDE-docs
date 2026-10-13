@@ -13,6 +13,13 @@ identity. The deploy workflow publishes through the Pages Actions source precise
 bot ever commits to this repository (no `gh-pages` branch). Check
 `git log --format='%an <%ae>'` before pushing.
 
+## Workflow rule: no direct pushes (since 2026-10-13)
+
+Nothing is pushed to `main` directly. Work accumulates as local commits on the `next` branch
+(or a topic branch); when there is enough, open a pull request from that branch and let the
+owner review and merge. `git push` of `main` is never run from a session. PR titles and
+descriptions carry no generated-by or session footers, the same rule as commit trailers.
+
 ## Three sites, do not confuse them
 
 | URL | Repo | What |
