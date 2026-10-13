@@ -40,6 +40,8 @@ flowchart LR
 
 ## Citation
 
-> Li, Y. et al. (2026). *Dual cognitive and motor phenotyping for early detection of AD progression in APP and Tau models.* In preparation.
+> Li Y, Ling L, Chou R, Ketterer-Sykes EB, Andrews NA, Han C, Liao C, Lee CT, Lee KF\*, Pereira TD\*.
+> *Dual cognitive and motor phenotyping for early detection of Alzheimer's Disease progression in mouse models.*
+> In preparation (target: Nature Communications; submission November 2026). \* corresponding authors.
 
 Software: `talmolab/STRIDE` v0.1.0, MIT license. A software DOI will be added on release.
