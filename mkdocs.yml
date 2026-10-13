@@ -1,0 +1,97 @@
+site_name: STRIDE
+site_description: STRIDE — Stride-level Tracking and Integrated Decision Extraction. Dual cognitive and motor phenotyping of mice from T-maze video.
+site_url: https://talmolab.github.io/STRIDE-docs/
+repo_url: https://github.com/talmolab/STRIDE
+repo_name: talmolab/STRIDE
+edit_uri: ""
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.tabs.link
+    - search.suggest
+    - search.highlight
+
+copyright: >
+  STRIDE · Talmo Lab, Salk Institute
+  <a href="https://talmolab.org" target="_blank" rel="noopener">
+    <img src="/STRIDE-docs/assets/talmolab_logo.jpg" alt="Talmo Lab" class="footer-logo">
+  </a>
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+    - Recording requirements: getting-started/recording.md
+  - User Guide:
+    - Inputs and file layout: user-guide/inputs.md
+    - Configuration: user-guide/configuration.md
+    - Outputs: user-guide/outputs.md
+    - Command reference: user-guide/cli.md
+    - Safety checks and gates: user-guide/safety-checks.md
+    - Provenance: user-guide/provenance.md
+  - How It Works:
+    - Pipeline overview: how-it-works/pipeline.md
+    - Pose and ROI models: how-it-works/models.md
+    - T-maze decisions: how-it-works/decisions.md
+    - Stride detection and gait metrics: how-it-works/gait.md
+    - Statistics and classification: how-it-works/statistics.md
+  - Tutorials:
+    - Process a new cohort: tutorials/new-cohort.md
+    - Gait on a different maze: tutorials/other-maze.md
+    - Multi-GPU inference: tutorials/multi-gpu.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
