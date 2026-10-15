@@ -93,5 +93,6 @@ nav:
     - Process a new cohort: tutorials/new-cohort.md
     - Gait on a different maze: tutorials/other-maze.md
     - Multi-GPU inference: tutorials/multi-gpu.md
+  - Web tools: web-tools.md
   - FAQ: faq.md
   - Changelog: changelog.md

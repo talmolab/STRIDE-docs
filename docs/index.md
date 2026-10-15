@@ -37,6 +37,7 @@ flowchart LR
 - [Configuration](user-guide/configuration.md) and [Command reference](user-guide/cli.md)
 - [How the decisions are scored](how-it-works/decisions.md) and [how strides are detected](how-it-works/gait.md)
 - [Process a new cohort](tutorials/new-cohort.md) and [Gait on a different maze](tutorials/other-maze.md)
+- [Web tools](web-tools.md): rig checker and viewer, in the browser
 
 ## Citation
 

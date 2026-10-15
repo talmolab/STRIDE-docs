@@ -37,5 +37,6 @@ python -m stride.stages.safety_checks --require rename,roi --vid "$VID"   # FAIL
 7. Log data-quality flags for the day.
 
 !!! tip "Rename before pose"
-    The pose file embeds the video name, so renaming after inference breaks the join between
-    pose, regions and metadata.
+    The pose file embeds the video name from inference time. The gait stage now uses the on-disk
+    name (pull request #8) and refuses to run when stride and confidence stems disagree, but the
+    decision stage and every downstream join still read the file name, so rename first.

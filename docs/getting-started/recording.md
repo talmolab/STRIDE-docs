@@ -26,6 +26,12 @@ then checks that every stride was converted with that constant.
 
 ## Naming
 
-Clips are named `Day{N}_{mouse}_Trial{k}.MP4`. The stem is parsed for day, mouse and trial, and
-the decision stage joins each clip to `meta_trials.csv` on day and mouse. Rename **before** pose
-inference: the pose file embeds the video name.
+Clips are named `Day{N}_{mouse}_Trial{k}.MP4` (`.mp4` works too; discovery is recursive and
+case-insensitive). The stem is parsed for day, mouse and trial, and the decision stage joins each
+clip to `meta_trials.csv` on day and mouse. Mouse ids need not be numeric: cage-position ids such
+as `M3-2` or genotype-prefixed ids such as `WT_1_1` are accepted.
+
+Rename **before** pose inference when you can. The pose file embeds the video name from inference
+time; since the fix merged as pull request #8 the gait stage takes the stem from the file on disk,
+so a later rename no longer breaks gait, and a stem mismatch between the stride table and the
+confidence table stops the run instead of silently dropping strides.
