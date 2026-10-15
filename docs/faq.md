@@ -4,6 +4,11 @@
 It has no region file, or its `day,mouse` did not match `meta_trials.csv`. Run
 `safety_checks --roi-coverage` on the folder and check the stem.
 
+**Gait filtering stops with "confidence merge matched 0 stems".**
+The stride table and the per-video confidence table name the clips differently, which happens
+when videos were renamed after pose inference with an older STRIDE. Re-run gait extraction with
+the current version (it takes the stem from the file on disk) or rename the clips back.
+
 **`px_per_cm` is `1.0` in the gait table.**
 The stride was never calibrated: no region file was found to derive the scale and no override
 was set. The calibration gate fails on this. Fix the inputs and re-run gait; do not divide by hand.

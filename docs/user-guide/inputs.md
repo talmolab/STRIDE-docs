@@ -1,7 +1,7 @@
 # Inputs and file layout
 
 A cohort is a directory of videos plus three small tables. Per-day subdirectories are supported;
-discovery is recursive.
+discovery is recursive and case-insensitive (`.MP4` and `.mp4`).
 
 ```
 my_cohort/
