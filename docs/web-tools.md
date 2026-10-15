@@ -19,6 +19,11 @@ trial at the recording's native 3840 × 2160, so its scale reads as on the real 
 3. **Mark the mouse**: two clicks from snout to tail base cross-check the scale against mouse size
    (adult mice measure about 6.3 to 7.5 cm in STRIDE's cohorts). A value far outside that range
    means the scale is wrong or the animal is not a mouse.
+3b. **Mark a straight edge** (4 or more points along a maze wall or a board row, with the loupe): the
+   page fits a line and applies the pipeline's stage-1 rule, more than 2 px RMS bowing means
+   undistort before pose inference. A failing check adds `stride check-distortion` to the recipe.
+   This is the browser stand-in for the ChArUco-based check; the pipeline's board check remains the
+   reference, since it also tests corner spacing and reprojection error.
 4. **Read the verdict and the recipe**: a per-module verdict against the
    [recording requirements](getting-started/recording.md), what to change, and a generated
    `config.yaml` batch block and command list with your fps and scale filled in, the stages to skip
