@@ -20,5 +20,14 @@ uvx --with mkdocs-material mkdocs serve          # http://127.0.0.1:8000/STRIDE-
 uvx --with mkdocs-material mkdocs build --strict # what CI runs; fails on broken links or nav
 ```
 
+## Conventions
+
+- Content lives in `docs/`; register every new page in `nav:` in `mkdocs.yml` (the strict build fails otherwise)
+  and describe the code as it is, with numbers taken from `config.yaml` and the stage modules.
+- Commits are authored and committed by the docs owner (Yipeng Li, LeoMeow123) only, with no co-author or
+  tool trailers. Nothing is pushed to `main` directly: work goes on the `next` branch and reaches `main`
+  through a pull request.
+- Deployment uses the GitHub Pages "Actions" source, so no bot ever commits to this repository.
+
 Three sites, do not confuse them: this is the **documentation**. The research **project page**
 is `talmolab/STRIDE-page`; the **pipeline** is `talmolab/STRIDE`.
