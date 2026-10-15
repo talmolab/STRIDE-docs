@@ -7,7 +7,9 @@ Both run entirely in the browser: nothing is uploaded and no server is involved.
 
 Drop a video. The page reads resolution, frame rate, codec and bitrate from the MP4 container
 without decoding it (the `moov` index is found wherever the camera put it, so a 130 MB clip is read
-in milliseconds) and shows a frame. Then:
+in milliseconds), plays a preview, and shows a frame for labelling with zoom (fit, 2×, 4×) and a 4× loupe
+under the cursor so wall edges can be clicked to the pixel. The demo is a 2-second excerpt of a T-maze
+trial at the recording's native 3840 × 2160, so its scale reads as on the real rig. Then:
 
 1. **Say what is in the video**: T-maze, another maze or corridor, open field, or treadmill, plus
    whether the paws are visible, the whole arena is in frame and the camera is perpendicular. The
@@ -37,7 +39,9 @@ Load a `.slp` pose file and a `.rois.yml` region file, optionally with the video
 parses the pose file with the lab's `sleap-io.js`, derives px/cm from `segment2` exactly as the
 pipeline does, and runs a JavaScript port of the stride detector with the pipeline's default
 thresholds. It shows the regions, the tail-base trajectory and the current pose on the frame, a
-swing-and-stride timeline, summary tiles, and a per-stride table with CSV export.
+swing-and-stride timeline, summary tiles, and a per-stride table with CSV export. With a video
+loaded it plays the clip with the pose, timeline cursor and table row following; pause, scrub, or
+click a stride to stop on it.
 
 The port reproduces the pipeline's stride boundaries on the bundled demo trial, and its stage-6
 filters (confidence, edge strides, turning, backward strides) reproduce the pipeline's filtered set
