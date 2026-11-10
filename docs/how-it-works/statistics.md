@@ -1,39 +1,69 @@
-# Statistics and classification
+# Statistics (optional)
 
-## Trial phase tagging (stage 7)
+The genotype comparison of the paper is not part of the automated run. It is two existing stages
+that can be switched on:
 
-Each stride is placed in its trial using `decisions.csv`: strides between the gate frame and the
-arm-entry frame are **task** strides; strides after the entry are the **return**; a return that
-is faster than twice the mouse's within-trial median speed is a **poked return**. The mixed models
-use task strides by default (`--trial-phase task`).
+- in `stride tmaze`: `steps: {mixed_models: true, classifier: true}` plus `stats_config`
+  (results under `stats/`). The metadata needs a `genotype` column;
+- with the stage-by-stage runner: stages `7-9` and `10` of `run_all.py`
+  ([Stage-by-stage batch runs](../tutorials/batch-runs.md)).
 
-## Mixed models (stages 8 to 9)
+Both read the batch / statistics config
+([Configuration reference](../user-guide/configuration.md#statistics-settings)).
 
-Two linear mixed models per metric and batch, mouse as random intercept:
+## Trial phase tagging
+
+Each stride is matched to its trial by the video name, using the decision table. A stride whose
+`frame_start` lies between `gate_frame` and `entry_frame` (inclusive) is a **task** stride. Every
+other stride of a matched video is a **return** stride. A return stride faster than twice the
+mouse's median task-stride speed is a **poked return**. Strides of videos without a decision row
+are `unmatched`; without a decision table every stride is `untagged`. The mixed models use task
+strides by default (`--trial-phase task`).
+
+## Mixed models
+
+Two linear mixed models per metric and batch (statsmodels `mixedlm`, REML), with a random
+intercept per mouse. The metric and the covariates are z-scored.
 
 | model | fixed effects |
 |---|---|
-| **M1** | genotype (treatment-coded against WT) + standardized body length [+ sex] |
-| **M2** | M1 + standardized stride speed |
+| **M1** | genotype + body length [+ sex] |
+| **M2** | genotype + stride speed + body length [+ sex] |
 
-M2 asks whether a genotype effect survives after speed is accounted for, since speed drives most
-gait metrics. Fourteen metrics enter (the `metrics:` list in `config.yaml`); p-values are
-corrected with Benjamini-Hochberg FDR across the metrics of each model. Results go to
-`lmm_results_all.csv`, and heatmaps show `-log10(p)` next to standardized coefficients with
-FDR-significant cells marked.
+- Genotype is compared with the reference genotype (`statistics.reference_genotype`, `WT`). The
+  labels in `statistics.genotype_order` are used; a batch may contain any subset that includes
+  the reference, and other labels are left out.
+- Sex is added when the batch has `has_sex: true`.
+- The metrics are the `metrics:` list of the config (14 columns; `step_freq_hz` is derived as
+  `1000 / duration_ms`). In M2 a metric that is itself a covariate is skipped.
+- A fit is not produced when fewer than 100 strides have all values present, or when a standard
+  error of the fit is above 10. `lmm_fit_log.csv` lists every fit, kept or not, and why.
+- `lmm_results_all.csv` holds the coefficients (in the metric's units and standardized), standard
+  errors and p-values, plus `<genotype>_fdr`: Benjamini-Hochberg over all genotype p-values of
+  one batch and model. The heatmaps show `-log10(p)` next to the standardized coefficients and
+  mark FDR below 0.05.
 
-### Regional analysis
+## Classifier
 
-Strides are tagged by the region of their midpoint (stem, junction, arm) and the models are
-re-run per region, which is how the junction-specific step-frequency effect in tau mice was found.
+A WT-versus-Tau logistic regression on per-mouse features. It needs mice labelled `WT` and `Tau`.
 
-## Classification (stage 10)
+1. **Features.** Gait (6): Euclidean stride length, step frequency, snout sway, temporal symmetry,
+   stride duration and step width, from the filtered strides with a speed of 15 to 25 cm/s, median
+   per mouse. T-maze (8): accuracy (the share of correct trials, a mean), junction exploration,
+   number of probes, probe duration, probe bias, probe-choice correlation, and the log10 choice
+   and stem latencies (per-mouse medians).
+2. **Ranking.** Features are ranked by p-value: the values listed under
+   `classification.gait_lmm_pvalues` / `tmaze_lmm_pvalues` in the config where given, otherwise a
+   WT-versus-Tau t-test on the per-mouse values. The ranking uses all mice: it is done outside
+   the cross-validation folds.
+3. **Model.** Standardized inputs, logistic regression with balanced class weights, 5-fold
+   stratified cross-validation (seed 42), evaluated for the top K features, K = 1 to N. The K
+   with the highest mean AUC is reported as optimal.
+4. **Outputs.** `regression_feature_ranking.csv`, `regression_auc_vs_k.csv` with its figure, and
+   ROC curves for the T-maze, gait and combined feature sets.
 
-Per-mouse averaged features from both modules are ranked by p-value (gait from the M2 models;
-T-maze metrics from mixed models where available, t-tests otherwise). A logistic regression with
-standardized inputs and balanced class weights separates WT from tau mice under 5-fold stratified
-cross-validation, evaluated at every feature-set size K = 1 to N. Outputs: ROC curves for the
-T-maze, gait and combined sets and the ranked feature table.
+The shipped `config.example.yaml` has empty p-value tables, so with it every feature is ranked by
+the t-test.
 
 !!! note "Never pool raw centimetres across cameras"
     Rigs differ by a few percent in scale and by more in tracking noise. Compare genotypes within

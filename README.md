@@ -4,7 +4,7 @@ Documentation site for [STRIDE](https://github.com/talmolab/STRIDE) — Stride-l
 Integrated Decision Extraction, the Talmo Lab pipeline for dual cognitive and motor phenotyping of
 mice from T-maze video.
 
-Published at https://talmolab.github.io/STRIDE-docs/ once GitHub Pages is enabled (source: GitHub Actions).
+Published at https://talmolab.github.io/STRIDE-docs/ (GitHub Pages, source: GitHub Actions). Describes STRIDE 1.0.0.
 
 | What | Where |
 |---|---|
@@ -23,7 +23,8 @@ uvx --with mkdocs-material mkdocs build --strict # what CI runs; fails on broken
 ## Conventions
 
 - Content lives in `docs/`; register every new page in `nav:` in `mkdocs.yml` (the strict build fails otherwise)
-  and describe the code as it is, with numbers taken from `config.yaml` and the stage modules.
+  and describe the code as it is, with numbers taken from the stage modules, `config.example.yaml`,
+  the `stride init-config` templates and the commands' `--help`.
 - Changes reach `main` through pull requests; deployment uses the GitHub Pages "Actions" source, so
   the repository holds no generated branch.
 

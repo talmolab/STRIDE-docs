@@ -1,56 +1,61 @@
-# Process a new cohort
+# Process a recording set end to end
 
-End to end for one cohort recorded on a rig STRIDE already has models for.
+One recording set, from videos to tables, with `stride tmaze`. The paths are placeholders.
 
-## 1. Stage the videos
+## 1. Check the recording
 
-Sort clips into per-day folders and rename them `Day{N}_{mouse}_Trial{k}.MP4`. Reconcile the
-number of clips per day against the recorder's trial counts before anything else; a mismatch
-here becomes a wrong identity later. Write `meta_trials.csv` (`day,mouse,reward`) and the mouse
-metadata table.
+Paws visible from below, at least 100 fps and 20 px/cm for the gait tables, the maze stem running
+left to right in the image ([Recording requirements](../getting-started/recording.md)). The
+[rig checker](https://talmolab.github.io/STRIDE-page/tools/rig-checker/) reads a video in the
+browser and reports this.
 
-## 2. Add the batch to `config.yaml`
-
-See [Configuration](../user-guide/configuration.md). Set `px_per_cm_override` if the rig has a
-verified board value.
-
-## 3. Inference (GPU environment)
+## 2. Write the config
 
 ```bash
-python -m stride.stages.run_inference --config config.yaml --batch my_cohort
-python -m stride.stages.safety_checks --roi-coverage /data/my_cohort/DAY1   # repeat per day
+stride init-config tmaze -o my_tmaze.yaml
 ```
 
-Large cohorts: run `stride pose-inference` with several workers per GPU
-([Multi-GPU inference](multi-gpu.md)).
+Fill in `videos`, `output`, `pose_model`, `roi_model`, and, if you have it, `metadata` (the
+rewarded arm per trial). Leave `scale.px_per_cm` empty when a ChArUco board is in view; set it
+when you measured the scale yourself.
 
-## 4. Decisions
+## 3. Run
 
 ```bash
-python -m stride.stages.run_tmaze --config config.yaml --batch my_cohort
+stride tmaze --config my_tmaze.yaml
 ```
 
-The summary must report `skipped: 0`. A skipped clip means it did not match a `day,mouse` row in
-`meta_trials.csv` or has no region file.
+Inference is the slow part. To spread pose inference over several GPUs first, see
+[Multi-GPU inference](multi-gpu.md); `stride tmaze` then finds the pose files and skips that step
+for them.
 
-## 5. Gait and the calibration gate
+## 4. Read `SUMMARY.md`
+
+It says how many videos were found and analysed, which were left out and why, the px/cm used and
+where it came from, and every warning.
+
+- **Videos left out**: fix the cause (no pose file, no ROI) and run the same command again.
+  Finished work is not repeated.
+- **Consensus ROI**: open the montage under `roi/roi_consensus_qc/` and confirm each borrowed ROI
+  lands on the maze.
+- **Scale**: when the ChArUco measurement was refused, read `scale/calibration_summary.txt`.
+
+## 5. Check the gait scale (optional)
 
 ```bash
-python -m stride.stages.run_gait_extraction --config config.yaml --batch my_cohort
-python -m stride.stages.safety_checks --gait output/my_cohort/gait_per_stride_filtered.csv --expect-pxcm 26.08
+python -m stride.stages.safety_checks --gait /data/stride_out/gait/gait_per_stride_filtered.csv --expect-pxcm 26.1
 ```
 
-Read the gate output: uniform scale equal to the board, plausible body length, uniform fps.
+Uniform scale equal to the value you expect, plausible body length, uniform fps
+([Safety checks](../user-guide/safety-checks.md)).
 
-## 6. Statistics
+## 6. Use the tables
 
-```bash
-python -m stride.stages.gait_lmm --config config.yaml
-python -m stride.stages.classification --config config.yaml
-```
+`decisions/decisions_clean.csv` for choices, `decisions/metrics.csv` for the per-trial summary,
+`gait/gait_per_stride_filtered.csv` for gait
+([column glossary](../user-guide/outputs.md)).
 
 ## 7. Record what happened
 
-Keep a per-cohort data-quality note next to the outputs: clips recovered by consensus ROI,
-quarantined trials, identity corrections. The run manifests record the code and parameters; the
-note records the judgement calls.
+The run manifests record the code and the settings. Keep a short note next to the outputs for
+the judgement calls: clips that use the consensus ROI, trials you excluded and why.

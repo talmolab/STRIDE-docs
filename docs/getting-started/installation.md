@@ -1,40 +1,58 @@
 # Installation
 
-STRIDE has two parts that live in two environments.
+## The package
 
-| Part | Stages | Environment |
-|---|---|---|
-| **Analysis package** (`stride`) | 3 to 10: decisions, gait, statistics, classification | plain Python, CPU only |
-| **Inference runtime** | 1 to 2: calibration check, SLEAP pose and ROI inference | `sleap-nn` with PyTorch and a CUDA GPU |
-
-## Analysis package
-
-Requires Python 3.12 or newer.
+Requires **Python 3.12 or newer**.
 
 ```bash
 git clone https://github.com/talmolab/STRIDE.git
 cd STRIDE
-pip install -e .        # or: uv pip install -e .
+pip install -e .            # or: uv pip install -e .
+pip install -e ".[dev]"     # adds pytest, needed for the mock-data quick starts
 ```
 
-This installs the `stride` command and the stage modules. `sleap-io` is a dependency for reading
-and writing `.slp` files only; it is not an inference engine.
+This installs the `stride` command and the stage modules. It is everything the analysis needs:
+decisions, gait, scale calibration, and the optional statistics run on a plain CPU.
 
-## Inference runtime
+## The inference runtime (only when STRIDE runs your models)
 
-Pose and ROI inference run on a separate GPU environment with
-[sleap-nn](https://github.com/talmolab/sleap-nn). Install it following its own instructions,
-then point `config.yaml` at that interpreter when running stages 1 to 2.
+STRIDE runs your SLEAP models through [sleap-nn](https://github.com/talmolab/sleap-nn) (PyTorch;
+a GPU in practice). Install it separately, following its own instructions, in the same
+environment as STRIDE. It is needed only for the two inference steps (pose, ROI); the analysis of
+existing pose and ROI files does not use it. `sleap-io`, which is installed with STRIDE, only
+reads and writes `.slp` files.
 
 !!! note "Trained models are not bundled"
-    STRIDE needs two SLEAP models: a 15-keypoint top-down **pose** model (centroid +
-    centered-instance) and a 7-region **ROI** model. Set `pose_model_paths` and
-    `roi_model_paths` in `config.yaml` to your local copies. The trained weights used in the
-    paper will be deposited with the publication.
+    STRIDE ships no trained models. Point it at your own SLEAP pose and ROI models
+    (`--pose-model`, `--roi-model`, or the config). What the models must provide is listed in
+    [Inputs and file layout](../user-guide/inputs.md). The trained weights of the original study
+    are to be deposited (DOI to be added).
+
+## OpenCV version
+
+The package pins `opencv-python >= 4.8, < 4.14`. From 4.14 on (and in 5.x) the ChArUco detector
+reads the same board about 0.1 % lower, so the pin keeps the scale measurement the same for
+everyone ([Scale calibration](../pipelines/calibration.md)).
+
+## Operating systems
+
+| | Linux | macOS | Windows |
+|---|---|---|---|
+| Analysis on synthetic data (the test suite, run for every pull request) | tested | tested | tested |
+| Inference with SLEAP models | run on NVIDIA GPUs | not run | not run |
+
+The code uses no shell commands and no links, writes UTF-8 files, matches video extensions
+case-insensitively and starts its workers under `spawn`.
 
 ## Check the install
 
 ```bash
+stride --version
 stride --help
-python -m stride.stages.safety_checks --help
+pytest tests            # synthetic data only; no videos, models or GPU needed
 ```
+
+## The authors' lab layer (optional)
+
+`pip install -e lab/` adds the `stride-lab` command described in
+[Authors' lab workflow](../about/lab-workflow.md). It is not needed to use STRIDE.

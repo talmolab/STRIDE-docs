@@ -76,23 +76,31 @@ nav:
     - Installation: getting-started/installation.md
     - Quickstart: getting-started/quickstart.md
     - Recording requirements: getting-started/recording.md
+  - Pipelines:
+    - STRIDE T-maze: pipelines/tmaze.md
+    - STRIDE Gait: pipelines/gait.md
+    - Scale calibration: pipelines/calibration.md
   - User Guide:
     - Inputs and file layout: user-guide/inputs.md
-    - Configuration: user-guide/configuration.md
-    - Outputs: user-guide/outputs.md
+    - Configuration reference: user-guide/configuration.md
     - Command reference: user-guide/cli.md
-    - Safety checks and gates: user-guide/safety-checks.md
-    - Provenance: user-guide/provenance.md
+    - Outputs and column glossary: user-guide/outputs.md
+    - Logs, warnings and exit codes: user-guide/provenance.md
+    - Safety checks: user-guide/safety-checks.md
   - How It Works:
     - Pipeline overview: how-it-works/pipeline.md
     - Pose and ROI models: how-it-works/models.md
     - T-maze decisions: how-it-works/decisions.md
-    - Stride detection and gait metrics: how-it-works/gait.md
-    - Statistics and classification: how-it-works/statistics.md
+    - Stride detection and gait measures: how-it-works/gait.md
+    - Statistics (optional): how-it-works/statistics.md
   - Tutorials:
-    - Process a new cohort: tutorials/new-cohort.md
+    - Process a recording set end to end: tutorials/new-cohort.md
     - Gait on a different maze: tutorials/other-maze.md
     - Multi-GPU inference: tutorials/multi-gpu.md
+    - Stage-by-stage batch runs and statistics: tutorials/batch-runs.md
   - Web tools: web-tools.md
   - FAQ: faq.md
-  - Changelog: changelog.md
+  - About:
+    - Changelog: changelog.md
+    - Citation: about/citation.md
+    - Authors' lab workflow: about/lab-workflow.md
