@@ -1,62 +1,87 @@
 # Quickstart
 
-## 1. Describe your batch
+Both pipelines can be tried on synthetic ("mock") data that the repository generates: no real
+videos, no models and no GPU are needed. Run the commands from the repository root after
+`pip install -e ".[dev]"`.
 
-Add an entry under `batches:` in `config.yaml` (see [Configuration](../user-guide/configuration.md)):
-
-```yaml
-batches:
-  my_cohort:
-    name: "My cohort"
-    video_dir: "/data/my_cohort/videos/"       # Day{N}_{mouse}_Trial{k}.MP4
-    yml_dir: "/data/my_cohort/roi_yml/"        # or leave ROIs next to the videos
-    meta_trials_csv: "/data/my_cohort/meta_trials.csv"   # day,mouse,reward
-    metadata_csv: "/data/my_cohort/mice.csv"             # mouse, sex, genotype
-    fps: 120
-    pose_model_paths: ["/models/pose/centroid", "/models/pose/centered_instance"]
-    roi_model_paths:  ["/models/roi/centroid",  "/models/roi/centered_instance"]
-    column_map:
-      mouse_id: ["mouse"]
-      sex: "Gender"
-```
-
-## 2. Run everything
+## STRIDE T-maze on mock data
 
 ```bash
-python run_all.py --config config.yaml --batch my_cohort
+python tests/mock/make_mock_dataset.py --out tests/mock/_data --only core
+stride tmaze tests/mock/_data/core/videos --roi-dir tests/mock/_data/core/roi_yml \
+    --metadata tests/mock/_data/core/meta_trials.csv --metadata tests/mock/_data/core/metadata.csv \
+    --out mock_output/tmaze --skip-inference
 ```
 
-`run_all.py` runs the stages in order and skips any stage whose outputs already exist, so a
-stopped run resumes where it left off. Use `--stages` to run a subset:
+The mock set comes with its pose and ROI files, so the two inference steps are skipped
+(`--skip-inference`). The run writes `mock_output/tmaze/SUMMARY.md`, the decision tables under
+`decisions/` and the gait tables under `gait/`. The mock maze is drawn at 16 px/cm, so the gait
+step prints its "below 20 px/cm" warning.
+
+## STRIDE Gait on mock data
 
 ```bash
-python run_all.py --stages 1-2        # inference only
-python run_all.py --stages 3,4-6      # decisions, then stride detection and filtering
-python run_all.py --stages 7-9        # mixed models and heatmaps
+python tests/mock/make_mock_gait.py --out tests/mock/_data_gait --only runway
+stride gait tests/mock/_data_gait/runway/videos --px-per-cm 24 \
+    --metadata tests/mock/_data_gait/runway/metadata.csv --out mock_output/gait
 ```
 
-## 3. Or run stages one at a time
+A synthetic mouse walking a straight line, with its pose files. The tables are under
+`mock_output/gait/gait/`.
+
+## On your own recordings
+
+Replace the placeholder paths with yours.
+
+=== "STRIDE T-maze"
+
+    ```bash
+    stride tmaze /data/videos \
+        --pose-model /models/pose/centroid --pose-model /models/pose/centered_instance \
+        --roi-model  /models/roi/centroid  --roi-model  /models/roi/centered_instance \
+        --out /data/stride_out
+    ```
+
+=== "STRIDE Gait"
+
+    ```bash
+    # pose files (<video name>.slp) next to the videos or in --pose-dir; scale measured by you
+    stride gait /data/videos --px-per-cm 26.1 --out /data/gait_out
+
+    # no pose files yet: your trained pose model makes them; scale from the ChArUco board in view
+    stride gait /data/videos \
+        --pose-model /models/pose/centroid --pose-model /models/pose/centered_instance \
+        --out /data/gait_out
+    ```
+
+=== "Scale only"
+
+    ```bash
+    stride calibrate /data/videos --out /data/calibration
+    ```
+
+## Or from a config file
 
 ```bash
-stride analyze-decisions --videos /data/my_cohort/videos --yml /data/my_cohort/roi_yml --meta meta_trials.csv
-python -m stride.stages.run_gait_extraction --config config.yaml --batch my_cohort
-python -m stride.stages.gait_lmm --config config.yaml
-python -m stride.stages.classification --config config.yaml
+stride init-config tmaze -o my_tmaze.yaml     # commented template: videos, models, output, steps ...
+stride tmaze --config my_tmaze.yaml
+
+stride init-config gait -o my_gait.yaml
+stride gait --config my_gait.yaml
 ```
 
-## 4. Pass the gates before you trust a number
-
-```bash
-python -m stride.stages.safety_checks --roi-coverage /data/my_cohort/videos
-python -m stride.stages.safety_checks --gait output/my_cohort/gait_per_stride_filtered.csv --expect-pxcm 26.1
-```
-
-The second command is the **calibration gate**: it fails if the strides are not in a uniform,
-verified centimetre scale. See [Safety checks and gates](../user-guide/safety-checks.md).
+Anything given on the command line overrides the file. Every key is described in the
+[Configuration reference](../user-guide/configuration.md).
 
 ## What you get
 
-`decisions.csv`, `events.csv` and `metrics.csv` for the task; `gait_per_stride.csv`,
-`gait_per_stride_filtered.csv`, `gait_per_step.csv` and `gait_per_video.csv` for gait;
-`lmm_results_all.csv` with heatmaps; ROC curves for classification; and a
-`<stage>_run_manifest.yaml` next to each. Column by column: [Outputs](../user-guide/outputs.md).
+`decisions.csv`, `decisions_clean.csv`, `events.csv` and `metrics.csv` for the task;
+`gait_per_stride.csv`, `gait_per_stride_filtered.csv`, `gait_per_step.csv` and
+`gait_per_video.csv` for gait; `SUMMARY.md`, a run log and run manifests. Column by column:
+[Outputs and column glossary](../user-guide/outputs.md).
+
+## Next
+
+- [STRIDE T-maze](../pipelines/tmaze.md) and [STRIDE Gait](../pipelines/gait.md): every step and switch.
+- [Recording requirements](recording.md): what a recording needs before the gait numbers mean anything.
+- [Stage-by-stage batch runs and the optional statistics](../tutorials/batch-runs.md).
